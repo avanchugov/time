@@ -1,0 +1,18 @@
+{
+  "name": "utils",
+  "version": "0.0.1",
+  "description": "A library with a collection of commonly used classes, interfaces, and utilities for quick start.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup"
+  },
+  "keywords": ["utils"],
+  "author": "kop3yka",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3"
+  }
+}
