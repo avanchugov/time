@@ -1,10 +1,11 @@
 {
-  "name": "utils",
-  "version": "0.0.1",
-  "description": "A library with a collection of commonly used classes, interfaces, and utilities for quick start.",
+  "name": "@kop3yka/time",
+  "version": "0.0.2",
+  "description": "The package contains the Time class, which provides the ability to conveniently work with the familiar Date class.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "repository": "https://github.com/KoP3YkA/Time",
   "scripts": {
     "build": "tsup"
   },

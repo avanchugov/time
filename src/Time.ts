@@ -24,6 +24,11 @@ export class Time {
         return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     }
 
+    public get toBMString() : string {
+        const { day, month, year, hours, minutes, seconds } = this.values;
+        return `${month}/${day}/${year} ${(+hours) > 12 ? +hours - 12 : hours}:${minutes}:${seconds} ${(+hours) > 12 ? 'PM' : 'AM'}`;
+    }
+
     public get toDateString() : string {
         const { day, month, year, hours, minutes, seconds } = this.values;
         return `${day}/${month}/${year}`;
