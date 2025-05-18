@@ -1,14 +1,40 @@
 export class Time {
+    public time: Date;
+    private static defaultFormat : string = 'DD/MM/YYYY HH:mm:ss'
 
+    /**
+     * @param time can be either a `Date`, `Time` object or a number (a UNIX timestamp).
+     * @param dateIn an optional parameter. If `time` is given in seconds, you can specify `'seconds'`, and the time will be automatically multiplied by 1000.
+     */
     public constructor(
-        public time: Date
-    ) {}
-
-    public static get currency() : Time {
-        return new Time(new Date());
+        time: Date | number | Time = new Date(),
+        dateIn?: 'seconds' | 'ms'
+    ) {
+        if (time instanceof Date) this.time = time;
+        else if (time instanceof Time) this.time = time.time;
+        else if (dateIn && dateIn === 'seconds') this.time = new Date(time * 1000)
+        else this.time = new Date(time)
     }
 
-    private get values() : {day: string, month: string, year: number, hours: string, minutes: string, seconds: string} {
+    /**
+     * This static method changes the default time format. For example, you can specify
+     * `YYYY/MM/DD HH:mm:ss`
+     * and you won’t have to pass this string to the `format` method every time. Important: the format changes for the entire application.
+     * @param format default format
+     */
+    public static changeDefaultFormat(format: string) : void {
+        this.defaultFormat = format;
+    }
+
+    /**
+     * This method provides the current format as a string.
+     */
+    public static getDefaultFormat = () : string => this.defaultFormat;
+
+    /**
+     * This method returns an object with fields containing the year, month, day, hours, minutes, and seconds of the current date.
+     */
+    public values() : {day: string, month: string, year: number, hours: string, minutes: string, seconds: string} {
         const day = String(this.time.getDate()).padStart(2, '0');
         const month = String(this.time.getMonth() + 1).padStart(2, '0');
         const year = this.time.getFullYear();
@@ -19,98 +45,247 @@ export class Time {
         return {day, month, year, hours, minutes, seconds};
     }
 
-    public get toString() : string {
-        const { day, month, year, hours, minutes, seconds } = this.values;
-        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    /**
+     * These methods add the specified units of time to the current time. For example, `addHours(1)` will add 1 hour to the current date.
+     * @param seconds
+     */
+    public addSeconds(seconds: number) : Time {
+        this.time.setSeconds(this.time.getSeconds() + seconds)
+        return this;
     }
 
-    public get toBMString() : string {
-        const { day, month, year, hours, minutes, seconds } = this.values;
-        return `${month}/${day}/${year} ${(+hours) > 12 ? +hours - 12 : hours}:${minutes}:${seconds} ${(+hours) > 12 ? 'PM' : 'AM'}`;
+    /**
+     * These methods add the specified units of time to the current time. For example, `addHours(1)` will add 1 hour to the current date.
+     * @param minutes
+     */
+    public addMinutes(minutes: number) : Time {
+        this.time.setSeconds(this.time.getMinutes() + minutes)
+        return this;
     }
 
-    public get toDateString() : string {
-        const { day, month, year, hours, minutes, seconds } = this.values;
-        return `${day}/${month}/${year}`;
+    /**
+     * These methods add the specified units of time to the current time. For example, `addHours(1)` will add 1 hour to the current date.
+     * @param hours
+     */
+    public addHours(hours: number) : Time {
+        this.time.setSeconds(this.time.getHours() + hours)
+        return this;
     }
 
-    public getDaysDifference(): number;
-    public getDaysDifference(date: Date): number;
-    public getDaysDifference(date: number): number;
-    public getDaysDifference(date?: Date | number): number {
-        const currentDate = new Date();
-
-        let timeDifference: number;
-
-        if (date === undefined) {
-            timeDifference = currentDate.getTime() - this.time.getTime();
-        } else if (date instanceof Date) {
-            timeDifference = this.time.getTime() - date.getTime();
-        } else if (typeof date === 'number') {
-            timeDifference = currentDate.getTime() - (this.time.getTime() + date);
-        } else {
-            timeDifference = currentDate.getTime() - this.time.getTime();
-        }
-
-        return Math.floor(timeDifference / (1000 * 3600 * 24));
+    /**
+     * These methods add the specified units of time to the current time. For example, `addHours(1)` will add 1 hour to the current date.
+     * @param days
+     */
+    public addDays(days: number) : Time {
+        this.time.setSeconds(this.time.getHours() + (days * 24))
+        return this;
     }
 
-    public get getAccurateDifference(): string {
-        const now = new Date();
-        const diffInSeconds = Math.floor((now.getTime() - this.time.getTime()) / 1000);
-
-        const days = Math.floor(diffInSeconds / (60 * 60 * 24));
-        const hours = Math.floor((diffInSeconds % (60 * 60 * 24)) / (60 * 60));
-        const minutes = Math.floor((diffInSeconds % (60 * 60)) / 60);
-        const seconds = diffInSeconds % 60;
-
-        let result = '';
-        if (days > 0) result += `${days} дней `;
-        if (hours > 0) result += `${hours} часов `;
-        if (minutes > 0) result += `${minutes} минут `;
-        result += `${seconds} секунд`;
-
-        return result;
+    /**
+     * These methods work the same way as the previous ones but subtract the specified unit of time from the current date.
+     * @param seconds
+     */
+    public takeSeconds(seconds: number) : Time {
+        this.time.setSeconds(this.time.getSeconds() - seconds)
+        return this;
     }
 
-    public isExpired(time: number) : boolean {
-        if (time === 0) return false;
-        const difference : number = this.getDaysDifference(time)
-        return difference <= 0
+    /**
+     * These methods work the same way as the previous ones but subtract the specified unit of time from the current date.
+     * @param minutes
+     */
+    public takeMinutes(minutes: number) : Time {
+        this.time.setSeconds(this.time.getMinutes() - minutes)
+        return this;
     }
 
-    public static toDate(str: string) : Time | null {
-        const datePattern = /^\d{2}\.\d{2}\.\d{4}$/;
-
-        if (!datePattern.test(str)) return null;
-
-        const [day, month, year] = str.split('.').map(Number);
-
-        const date = new Date(year, month - 1, day);
-        if (date.getDate() !== day || date.getMonth() !== month - 1 || date.getFullYear() !== year) return null;
-
-        return new Time(date);
+    /**
+     * These methods work the same way as the previous ones but subtract the specified unit of time from the current date.
+     * @param hours
+     */
+    public takeHours(hours: number) : Time {
+        this.time.setSeconds(this.time.getHours() - hours)
+        return this;
     }
 
-    public timeElapsed(date: Date): string {
-        let diffInSeconds = Math.floor((this.time.getTime() - date.getTime()) / 1000);
+    /**
+     * These methods work the same way as the previous ones but subtract the specified unit of time from the current date.
+     * @param days
+     */
+    public takeDays(days: number) : Time {
+        this.time.setSeconds(this.time.getHours() - (days * 24))
+        return this;
+    }
 
-        const days = Math.floor(diffInSeconds / (60 * 60 * 24));
-        diffInSeconds %= 60 * 60 * 24;
+    /**
+     * These methods return the difference between dates in the specified unit. For example, if the current date is now, and you call the method `getDifferenceHours()` passing a time that is 1 hour earlier, the method will return 1. If the time differs by, say, 30 minutes, the method will return 0. And if it differs by two days, it will return 48.
+     * @param date
+     */
+    public getDifferenceSeconds(date: Date = new Date()): number {
+        return Math.abs(Math.floor((this.time.getTime() - date.getTime()) / 1000));
+    }
 
-        const hours = Math.floor(diffInSeconds / (60 * 60));
-        diffInSeconds %= 60 * 60;
+    /**
+     * These methods return the difference between dates in the specified unit. For example, if the current date is now, and you call the method `getDifferenceHours()` passing a time that is 1 hour earlier, the method will return 1. If the time differs by, say, 30 minutes, the method will return 0. And if it differs by two days, it will return 48.
+     * @param date
+     */
+    public getDifferenceMinutes(date: Date = new Date()): number {
+        return Math.abs(Math.floor((this.time.getTime() - date.getTime()) / 1000 / 60));
+    }
 
-        const minutes = Math.floor(diffInSeconds / 60);
-        const seconds = diffInSeconds % 60;
+    /**
+     * These methods return the difference between dates in the specified unit. For example, if the current date is now, and you call the method `getDifferenceHours()` passing a time that is 1 hour earlier, the method will return 1. If the time differs by, say, 30 minutes, the method will return 0. And if it differs by two days, it will return 48.
+     * @param date
+     */
+    public getDifferenceHours(date: Date = new Date()): number {
+        return Math.abs(Math.floor((this.time.getTime() - date.getTime()) / 1000 / 60 / 60));
+    }
 
-        let result = '';
-        if (days > 0) result += `${days} days `;
-        if (hours > 0) result += `${hours} hours `;
-        if (minutes > 0) result += `${minutes} minutes `;
-        if (seconds > 0 || result === '') result += `${seconds} seconds`;
+    /**
+     * These methods return the difference between dates in the specified unit. For example, if the current date is now, and you call the method `getDifferenceHours()` passing a time that is 1 hour earlier, the method will return 1. If the time differs by, say, 30 minutes, the method will return 0. And if it differs by two days, it will return 48.
+     * @param date
+     */
+    public getDifferenceDays(date: Date = new Date()): number {
+        return Math.abs(Math.floor((this.time.getTime() - date.getTime()) / 1000 / 60 / 60 / 24));
+    }
 
-        return result.trim();
+    /**
+     * The method returns a standard UNIX timestamp (in milliseconds).
+     */
+    public toMS() : number {
+        return this.time.getTime();
+    }
+
+    /**
+     * The method returns the UNIX time in seconds.
+     */
+    public toSeconds() : number {
+        return this.time.getTime() / 1000;
+    }
+
+    /**
+     * The method converts the current time to a string in the specified format (or the default one). `DD` is replaced by days, `MM` by months, `YYYY` by years, `HH` by hours, `mm` by minutes, and `ss` by seconds. For example, `DD/MM/YYYY HH:mm:ss` will return the current time in the format `DAY/MONTH/YEAR HOUR:MINUTES:SECONDS`.
+     * @param template
+     */
+    public format(template: string = Time.defaultFormat): string {
+        const { day, month, year, hours, minutes, seconds } = this.values();
+
+        return template
+            .replace("DD", day)
+            .replace("MM", month)
+            .replace("YYYY", String(year))
+            .replace("HH", hours)
+            .replace("mm", minutes)
+            .replace("ss", seconds);
+    }
+
+    /**
+     * The method sets the time to 0 hours, 0 minutes, and 0 seconds.
+     */
+    public startOfDay(): Time {
+        this.time.setHours(0, 0, 0, 0);
+        return this;
+    }
+
+    /**
+     * The method sets the time to 23 hours, 59 minutes, and 59 seconds.
+     */
+    public endOfDay(): Time {
+        this.time.setHours(23, 59, 59, 999);
+        return this;
+    }
+
+    /**
+     * The method sets the date to the first day of the current month and the time to 00:00:00.
+     */
+    public startOfMonth(): Time {
+        this.time.setDate(1);
+        this.startOfDay();
+        return this;
+    }
+
+    /**
+     * The method sets the date to the last day of the current month and the time to 23:59:59.
+     */
+    public endOfMonth(): Time {
+        this.time.setMonth(this.time.getMonth() + 1, 0);
+        this.endOfDay();
+        return this;
+    }
+
+    /**
+     * The method returns true if this timestamp is earlier than the current time, and false otherwise.
+     */
+    public isPast(): boolean {
+        return this.time.getTime() < Date.now();
+    }
+
+    /**
+     * The method returns true if this time has not yet occurred, and false otherwise.
+     */
+    public isFuture(): boolean {
+        return this.time.getTime() > Date.now();
+    }
+
+    /**
+     * The method creates a complete copy of the current time, returning a new Time object that is independent of the original.
+     */
+    public clone(): Time {
+        return new Time(new Date(this.time));
+    }
+
+    /**
+     * The method returns true if both times match exactly.
+     * @param otherTime
+     */
+    public isEqual(otherTime: Time): boolean {
+        return this.time.getTime() === otherTime.time.getTime();
+    }
+
+    /**
+     * Returns the name of the month.
+     */
+    public getMonthName(): string {
+        return this.time.toLocaleString('default', { month: 'long' });
+    }
+
+    /**
+     * Returns the name of the day.
+     */
+    public getDayName(): string {
+        return this.time.toLocaleString('default', { weekday: 'long' });
+    }
+
+    /**
+     * Parses a Time object from a string by format.
+     * @param dateString
+     * @param format
+     */
+    public static parse(dateString: string, format: string = Time.defaultFormat): Time {
+        const map: { [key: string]: number } = {
+            DD: 0,
+            MM: 0,
+            YYYY: 0,
+            HH: 0,
+            mm: 0,
+            ss: 0
+        };
+
+        format.replace(/(DD|MM|YYYY|HH|mm|ss)/g, (token, offset) => {
+            map[token] = parseInt(dateString.substr(offset, token.length));
+            return token;
+        });
+
+        const parsedDate = new Date(
+            map['YYYY'],
+            map['MM'] - 1,
+            map['DD'],
+            map['HH'],
+            map['mm'],
+            map['ss']
+        );
+
+        return new Time(parsedDate);
     }
 
 }
