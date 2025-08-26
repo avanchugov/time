@@ -1,6 +1,6 @@
 {
   "name": "@kop3yka/time",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "The package contains the Time class, which provides the ability to conveniently work with the familiar Date class.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

@@ -59,7 +59,7 @@ export class Time {
      * @param minutes
      */
     public addMinutes(minutes: number) : Time {
-        this.time.setSeconds(this.time.getMinutes() + minutes)
+        this.time.setMinutes(this.time.getMinutes() + minutes)
         return this;
     }
 
@@ -68,7 +68,7 @@ export class Time {
      * @param hours
      */
     public addHours(hours: number) : Time {
-        this.time.setSeconds(this.time.getHours() + hours)
+        this.time.setHours(this.time.getHours() + hours)
         return this;
     }
 
@@ -77,7 +77,7 @@ export class Time {
      * @param days
      */
     public addDays(days: number) : Time {
-        this.time.setSeconds(this.time.getHours() + (days * 24))
+        this.time.setHours(this.time.getHours() + (days * 24))
         return this;
     }
 
@@ -95,7 +95,7 @@ export class Time {
      * @param minutes
      */
     public takeMinutes(minutes: number) : Time {
-        this.time.setSeconds(this.time.getMinutes() - minutes)
+        this.time.setMinutes(this.time.getMinutes() - minutes)
         return this;
     }
 
@@ -104,7 +104,7 @@ export class Time {
      * @param hours
      */
     public takeHours(hours: number) : Time {
-        this.time.setSeconds(this.time.getHours() - hours)
+        this.time.setHours(this.time.getHours() - hours)
         return this;
     }
 
@@ -113,7 +113,7 @@ export class Time {
      * @param days
      */
     public takeDays(days: number) : Time {
-        this.time.setSeconds(this.time.getHours() - (days * 24))
+        this.time.setHours(this.time.getHours() - (days * 24))
         return this;
     }
 
