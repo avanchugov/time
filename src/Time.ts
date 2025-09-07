@@ -262,17 +262,12 @@ export class Time {
      * @param format
      */
     public static parse(dateString: string, format: string = Time.defaultFormat): Time {
-        const map: { [key: string]: number } = {
-            DD: 0,
-            MM: 0,
-            YYYY: 0,
-            HH: 0,
-            mm: 0,
-            ss: 0
-        };
+        const map: { [key: string]: number } = { DD: 0, MM: 0, YYYY: 0, HH: 0, mm: 0, ss: 0 };
 
-        format.replace(/(DD|MM|YYYY|HH|mm|ss)/g, (token, offset) => {
-            map[token] = parseInt(dateString.substr(offset, token.length));
+        let i = 0;
+        format.replace(/(DD|MM|YYYY|HH|mm|ss)/g, (token) => {
+            map[token] = parseInt(dateString.substr(i, token.length));
+            i += token.length;
             return token;
         });
 
@@ -284,8 +279,28 @@ export class Time {
             map['mm'],
             map['ss']
         );
-
         return new Time(parsedDate);
+    }
+
+    public timeUntil(date: Date = new Date()): { days: number, hours: number, minutes: number, seconds: number } {
+        const diff = this.time.getTime() - date.getTime();
+
+        if (diff <= 0) {
+            return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+        }
+
+        let seconds = Math.floor(diff / 1000);
+
+        const days = Math.floor(seconds / (24 * 3600));
+        seconds -= days * 24 * 3600;
+
+        const hours = Math.floor(seconds / 3600);
+        seconds -= hours * 3600;
+
+        const minutes = Math.floor(seconds / 60);
+        seconds -= minutes * 60;
+
+        return { days, hours, minutes, seconds };
     }
 
 }
